@@ -1,0 +1,56 @@
+LEARNING RULE LIST via OBJECTIVE Prefix Map
+min(objective): 0.29977 -> 0.27894, length: 1, cache size: 38
+min(objective): 0.27894 -> 0.27662, length: 1, cache size: 63
+min(objective): 0.27662 -> 0.23032, length: 1, cache size: 186
+min(objective): 0.23032 -> 0.21644, length: 2, cache size: 243
+min(objective): 0.21644 -> 0.21296, length: 2, cache size: 391
+min(objective): 0.21296 -> 0.17593, length: 2, cache size: 392
+min(objective): 0.17593 -> 0.16435, length: 3, cache size: 469
+min(objective): 0.16435 -> 0.16204, length: 3, cache size: 592
+min(objective): 0.16204 -> 0.15856, length: 3, cache size: 594
+min(objective): 0.15856 -> 0.14468, length: 4, cache size: 792
+min(objective): 0.14468 -> 0.13079, length: 5, cache size: 1184
+min(objective): 0.13079 -> 0.12384, length: 6, cache size: 8404
+min(objective): 0.12384 -> 0.11921, length: 7, cache size: 8565
+min(objective): 0.11921 -> 0.11806, length: 9, cache size: 9718
+min(objective): 0.11806 -> 0.11690, length: 10, cache size: 9867
+min(objective): 0.11690 -> 0.11632, length: 12, cache size: 11653
+min(objective): 0.11632 -> 0.11574, length: 12, cache size: 11665
+min(objective): 0.11574 -> 0.11516, length: 14, cache size: 11992
+min(objective): 0.11516 -> 0.11516, length: 12, cache size: 47867
+Exited because max number of nodes in the tree was reached
+TREE mem usage: 0
+PMAP mem usage: 0
+QUEUE mem usage: 0
+Deleting queue elements and corresponding nodes in the cache,since they may not be reachable by the tree's destructor
+
+minimum objective: 0.1151620550
+minimum lower bound in queue: 0.0000000030
+
+final num_nodes: 97084
+final num_evaluated: 1685
+final min_objective: 0.11516
+final accuracy: 0.88484
+
+OPTIMAL RULE LIST
+if ({F_3=4,F_5=high}) then ({label=acc})
+else if ({F_3=more,F_5=high}) then ({label=acc})
+else if ({F_3=more,F_5=med}) then ({label=acc})
+else if ({F_5=low}) then ({label=unacc})
+else if ({F_3=4,F_4=big}) then ({label=acc})
+else if ({F_0=low,F_3=4}) then ({label=acc})
+else if ({F_0=med,F_3=4}) then ({label=acc})
+else if ({F_4=small,F_5=med}) then ({label=unacc})
+else if ({F_2=4,F_3=4}) then ({label=acc})
+else if ({F_1=vhigh}) then ({label=unacc})
+else if ({F_0=vhigh,F_1=high}) then ({label=unacc})
+else if ({F_2=5more,F_3=4}) then ({label=acc})
+else ({label=unacc})
+
+writing optimal rule list to: ../logs/for-rule_feature-curious_obj-with_prefix_perm_map-no_minor-removed=none-max_num_nodes=100000-c=0.0000000-v=0-f=1000-opt.txt
+
+final total time: 0.858207
+
+delete rules
+delete labels
+tree destructors
