@@ -49,7 +49,7 @@ else ({label=unacc})
 
 writing optimal rule list to: ../logs/for-rule_feature-curious_obj-with_prefix_perm_map-no_minor-removed=none-max_num_nodes=100000-c=0.0000000-v=0-f=1000-opt.txt
 
-final total time: 0.858207
+final total time: 0.925336
 
 delete rules
 delete labels

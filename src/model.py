@@ -1,6 +1,4 @@
 
-
-
 from __future__ import print_function
 import sys
 import torch
@@ -83,7 +81,8 @@ class ProtoNN(BaseFCNN, torch.nn.Module):
 			X_hidden = X_batch_hidden if it == 0 else torch.cat([X_hidden, X_batch_hidden], 0)
 		return torch.mean(X_hidden, 0)
 
-	def generate_prototype(self, data, assignment, batch_size = 128):
+	def generate_prototype(self, data, assignment, batch_size = 128): 
+		### [[1,2,6], [0,3,5], [4,7,8]] for example. 
 		assert len(assignment) == self.prototype_num
 		for i in range(self.prototype_num):
 			data_single_prototype = data[assignment[i],:]

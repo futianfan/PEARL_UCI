@@ -11,7 +11,7 @@ from sklearn.metrics import roc_auc_score
 torch.manual_seed(1)    # reproducible
 np.random.seed(1)
 
-import preprocess_car as prepro 
+import preprocess as prepro 
 import model 
 
 
@@ -80,7 +80,6 @@ if __name__ == '__main__':
 	nnet = training(feat, label)
 	predicted_label = nnet.test(feat)
 	predicted_label = predicted_label.data.numpy() 
-	print(predicted_label.shape)
 	predicted_label = np.argmax(predicted_label, 1)
 	predicted_label = list(predicted_label)
 	accu = 0
