@@ -62,7 +62,7 @@ class VisitDataSeq:
 		uniq_time.sort()
 		idx = [list(filter(lambda x: timestamp[x] == t, range(len(admis)))) for t in uniq_time]
 		self.admis = [[admis[j] for j in i] for i in idx]
-		self.leng = len(admis)
+		self.leng = len(self.admis)
 		self.N = N 
 		self.max_length = max_length
 		if self.leng > self.max_length:
@@ -107,6 +107,7 @@ if __name__ == '__main__':
 	with open(filename, 'r') as fin:
 		lines = fin.readlines()[1:]
 		visit = VisitDataSeq(lines[0])
+		mat = visit.lst2mat()
 
 
 

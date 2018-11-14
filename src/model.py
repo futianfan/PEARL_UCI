@@ -23,6 +23,16 @@ class NNParam:
 		self.prototype_num = prototype_num 
 		self.num_of_hidden_layer = num_of_hidden_layer
 
+class RNNParam(NNParam):
+	def __init__(self, input_dim, output_dim, hidden_size, prototype_num, bidirection = True, \
+		maxlength = 10, batch_first = True, rnn_layer = 1, lambda_dictionary = 5e-1):
+		NNParam.__init__(self, input_dim, output_dim, hidden_size, prototype_num)
+		self.bidirection = bidirection 
+		self.maxlength = maxlength
+		self.batch_first = batch_first
+		self.rnn_layer = rnn_layer
+		self.lambda_dictionary = lambda_dictionary
+
 class BaseFCNN(torch.nn.Module):
 	def __init__(self, param):
 		super(BaseFCNN, self).__init__()
@@ -112,13 +122,95 @@ class ProtoNN(BaseFCNN, torch.nn.Module):
 		X_out = self.fc_out(X_hid)
 		return F.softmax(X_out)
 
+#### forward dictionary 
+
+class Dictionary:  ## (torch.nn.Module)
+	def __init__(self, input_dim, output_dim):
+		self.input_dim = input_dim
+		self.output_dim = output_dim 
+		self.dictionary = Variable(torch.rand(self.input_dim, self.output_dim) / np.sqrt(self.input_dim), requires_grad = True)
+		self.lambda_1 = 1e-2
+		self.lambda_2 = 1e-1 
+
+	def forward(self, X):
+		## X.shape[0] is batch_size
+		assert X.shape[1] == self.input_dim 
+		X = X.transpose(0,1)
+		A = self.dictionary
+		AT = A.transpose(0,1)
+		ATA = torch.mm(AT,A)
+		AAA = torch.inverse(ATA)
+		AAAA = torch.mm(AAA, AT)
+		AX = torch.mm(AAAA, X)
+		loss = torch.norm( X - torch.mm(self.dictionary, AX) )**2
+		return AX.transpose(0,1), loss 
+	def __str__(self):
+		return str(self.dictionary[0,2])
+
+def variable_length_RNN(X, X_len, RNN):
+	### X batch_size, leng, dim
+	batch_size = len(X_len)
+	v2k = sorted(list(range(batch_size)), key = lambda i:X_len[i], reverse = True)
+	k2v = {j:i for i,j in enumerate(v2k)}
+	k2v = [k2v[i] for i in range(batch_size)]
+	X_len_sort = list( np.array(X_len)[v2k] )
+	X_sort = X[v2k]
+	X_sort_packed = torch.nn.utils.rnn.pack_padded_sequence(X_sort, X_len_sort, batch_first = True)
+	_, (X_out, _) = RNN(X_sort_packed, None)
+	X_out = torch.cat([X_out[0], X_out[1]], 1)
+	X_out = X_out[k2v]
+	return X_out
 
 
+class Dictionary_RNN(torch.nn.Module):
+	def __init__(self, param):
+		super(Dictionary_RNN, self).__init__()
+		self.input_dim = param.input_dim
+		self.output_dim = param.output_dim 
+		self.hidden_size = param.hidden_size 
+		self.prototype_num = param.prototype_num 
+		self.bidirection = param.bidirection 
+		self.maxlength = param.maxlength 
+		self.rnn_layer = param.rnn_layer 
+		self.lambda_dictionary = param.lambda_dictionary
+
+		self.dictionary = Variable(torch.rand(self.input_dim, self.prototype_num) / np.sqrt(self.input_dim))
+		##!!!##self.dict = Dictionary(self.input_dim, self.prototype_num)
+
+		self.rnn = nn.LSTM(
+			input_size = self.prototype_num,
+			hidden_size = int(self.hidden_size / 2),
+			num_layers = self.rnn_layer,
+			batch_first = True, 
+			bidirectional = self.bidirection 
+			)
+		self.out = nn.Linear(self.hidden_size, self.output_dim)
+
+	def dictionary_forward(self, X):
+		X = X.transpose(0,1)
+		A = self.dictionary
+		##print(A[0,1], end = ' ')
+		AT = A.transpose(0,1)
+		ATA = torch.mm(AT,A)
+		AAA = torch.inverse(ATA)
+		AAAA = torch.mm(AAA, AT)
+		AX = torch.mm(AAAA, X)
+		loss = torch.norm( X - torch.mm(self.dictionary, AX) )**2
+		return AX.transpose(0,1), loss
 
 
-
-
-
-
+	def forward(self, Tens, T_lens):
+		assert isinstance(T_lens, list)
+		batch_size, maxlength, input_dim = Tens.shape 
+		assert maxlength == self.maxlength 
+		assert input_dim == self.input_dim
+		Tens = Tens.view(-1, input_dim)
+		##!!!##Tens2, loss = self.dict.forward(Tens)
+		Tens2, loss = self.dictionary_forward(Tens)
+		Tens2 = Tens2.view(batch_size, maxlength, -1)
+		assert Tens2.shape[2] == self.prototype_num
+		X_out = variable_length_RNN(Tens2, T_lens, self.rnn)
+		X_out = self.out(X_out)
+		return X_out, loss 
 
 
